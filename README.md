@@ -1,4 +1,4 @@
-## Exercise EOSIO for Ethereum Developers 101
+## Exercise Smart Contract 201 (Using Payload Structs)
 
 Create a Tic Tac Toe 
 - Welcome action can only be taken by contract account
@@ -8,6 +8,10 @@ Create a Tic Tac Toe
 - move( const name &challenger, const name &host, const name &by, const uint16_t &row, const uint16_t &column ); 
 
 Make the create action payable;  name host  must send in tokens to start a game, naming an opponent in the memo.  The opponent must send in tokens with host in memo in order to accept a game. If a non-matching amount or non-existent host is submitted, the action is rejected. Close cannot be called once a game is accepted, repay the host when the close action is called. Build a move action that can be called by the player with the current active turn. When a player wins, the pot is sent to that player. In the case of the tie, both players are refunded.
+
+Refactor your TicTacToe contract to work with payload structs rather than long parameter lists.
+
+Once done, ensure that actions pushed from cleos or EOS Studio behave as expected.
 
 ## Setup
 
@@ -77,18 +81,18 @@ get table eosio.token tictactoe accounts
 # Jane as Opponent
 cleos push action eosio.token transfer '[ "jane", "tictactoe", "1.0000 SYS", "bob" ]' -p jane@active
 cleos get table tictactoe tictactoe games
-cleos push action tictactoe close '[ "jane", "bob" ]' -p bob@active
+cleos push action tictactoe close '{"payload": {"opponent":"jane", "host":"bob"}}' -p bob@active
 cleos get table eosio.token tictactoe accounts
-cleos push action tictactoe move '[jane, bob, bob, 1,0]' -p bob
-cleos push action tictactoe move '[jane, bob, jane, 0,0]' -p jane
-cleos push action tictactoe move '[jane, bob, bob, 1,1]' -p bob
-cleos push action tictactoe move '[jane, bob, jane, 0,1]' -p jane
+cleos push action tictactoe move '{"payload": {"opponent":"jane", "host":"bob", "by":"bob", "row":1, "col":0}}' -p bob@active
+cleos push action tictactoe move '{"payload": {"opponent":"jane", "host":"bob", "by":"jane", "row":0, "col":0}}' -p jane@active
+cleos push action tictactoe move '{"payload": {"opponent":"jane", "host":"bob", "by":"bob", "row":1, "col":1}}' -p bob@active
+cleos push action tictactoe move '{"payload": {"opponent":"jane", "host":"bob", "by":"jane", "row":0, "col":1}}' -p jane@active
 
 # Bob Won the game
-cleos push action tictactoe move '[jane, bob, bob, 1,2]' -p bob
+cleos push action tictactoe move '{"payload": {"opponent":"jane", "host":"bob", "by":"bob", "row":1, "col":2}}' -p bob@active
 
 # Error Game Over
-cleos push action tictactoe move '[jane, bob, jane, 0,2]' -p jane
+cleos push action tictactoe move '{"payload": {"opponent":"jane", "host":"bob", "by":"jane", "row":0, "col":2}}' -p jane@active
 ```
 
 ## Resetting the chain
