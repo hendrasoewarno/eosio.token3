@@ -43,14 +43,27 @@ cleos set abi tictactoe tictactoe.abi
 #cleos get table eosio.token tictactoe accounts
 #cleos push action eosio.token transfer '[ "bob", "tictactoe", "1.0000 SYS", "jane" ]' -p bob@active
 #cleos get table tictactoe tictactoe games
-#get table eosio.token tictactoe accounts
-#cleos push action eosio.token transfer '[ "jane", "tictactoe", "1.0000 SYS", "bob" ]' -p jane@active
-#cleos get table tictactoe tictactoe games
-#cleos push action tictactoe close '[ "jane", "bob" ]' -p bob@active
 #cleos get table eosio.token tictactoe accounts
-#cleos push action tictactoe move '[jane, bob, bob, 1,0]' -p bob
-#cleos push action tictactoe move '[jane, bob, jane, 0,0]' -p jane
-#cleos push action tictactoe move '[jane, bob, bob, 1,1]' -p bob
-#cleos push action tictactoe move '[jane, bob, jane, 0,1]' -p jane
-#cleos push action tictactoe move '[jane, bob, bob, 1,2]' -p bob
-#cleos push action tictactoe move '[jane, bob, jane, 0,2]' -p jane
+#cleos push action tictactoe close '[ "jane", "bob"]' -p bob@active
+#cleos push action eosio.token transfer '[ "jane", "tictactoe", "1.0000 SYS", "bob" ]' -p jane@active
+#cleos push action tictactoe move '[jane, bob, bob, 1,0]' -p bob@active
+#cleos push action tictactoe move '[jane, bob, jane, 0,0]' -p jane@active
+#cleos push action tictactoe move '[jane, bob, bob, 1,1]' -p bob@active
+#cleos push action tictactoe move '[jane, bob, jane, 0,1]' -p jane@active
+#cleos push action tictactoe move '[jane, bob, bob, 1,2]' -p bob@active
+#cleos push action tictactoe move '[jane, bob, jane, 0,2]' -p jane@active
+
+#cleos push action eosio.token transfer '[ "bob", "tictactoe", "1.0000 SYS", "jane" ]' -p bob@active
+#cleos get table tictactoe tictactoe games
+#cleos get table eosio.token tictactoe accounts
+#cleos push action tictactoe close '[ "jane", "bob"]' -p bob@active
+#cleos push action eosio.token transfer '[ "jane", "tictactoe", "1.0000 SYS", "bob" ]' -p jane@active
+#cleos push action tictactoe move '[jane, bob, bob, 0,1]' -p bob@active
+#cleos push action tictactoe move '[jane, bob, jane, 0,0]' -p jane@active
+#cleos push action tictactoe move '[jane, bob, bob, 1,0]' -p bob@active
+#cleos push action tictactoe move '[jane, bob, jane, 1,1]' -p jane@active
+#cleos push action tictactoe move '[jane, bob, bob, 1,2]' -p bob@active
+#cleos push action tictactoe move '[jane, bob, jane, 0,2]' -p jane@active
+#cleos push action tictactoe move '[jane, bob, bob, 2,2]' -p bob@active
+#cleos push action tictactoe move '[jane, bob, jane, 2,1]' -p jane@active
+#cleos push action tictactoe move '[jane, bob, bob, 2,0]' -p bob@active
