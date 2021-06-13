@@ -1,14 +1,19 @@
-## Building sample contract
+## Exercise EOSIO for Ethereum Developers 101
 
-The source code for the sample smartcontract is at `contract/talk.cpp` within the IDE. To compile the contract, run this in a terminal:
+Create a Tic Tac Toe 
+- Welcome action can only be taken by contract account
+- create( const name &challenger, name &host );
+- close( const name &challenger, const name &host );
+- restart( const name &challenger, const name &host, const name &by );
+- move( const name &challenger, const name &host, const name &by, const uint16_t &row, const uint16_t &column ); 
 
-```
-cd contract
-eosio-cpp -o eosio.token.wasm src/eosio.token.cpp -I include --abigen
+Make the create action payable;  name host  must send in tokens to start a game, naming an opponent in the memo.  The opponent must send in tokens with host in memo in order to accept a game. If a non-matching amount or non-existent host is submitted, the action is rejected. Close cannot be called once a game is accepted, repay the host when the close action is called. Build a move action that can be called by the player with the current active turn. When a player wins, the pot is sent to that player. In the case of the tie, both players are refunded.
 
-```
+## Setup
 
-This will produce `eosio.token.abi` and `eosio.token.wasm`.
+1. Fork this repo to your personal GitHub account so that you can save your work into your personal Github account.
+
+2. Open https://gitpod.io#your_github_repo
 
 ## Installing the contract
 
@@ -24,7 +29,6 @@ cleos get account eosio.token
 
 cleos set code eosio.token eosio.token.wasm
 cleos set abi eosio.token eosio.token.abi
-
 ```
 
 ## Creating users and using the contract
@@ -55,56 +59,37 @@ cleos get table eosio.token bob accounts
 cleos get table eosio.token jane accounts
 ```
 
-## Payable actions
-
+## Tic-Tac-Toe
 ```
-eosio-cpp -o hodl.wasm src/hodl.cpp -I include --abigen
-cleos create account eosio hodl EOS6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV
-cleos set account permission hodl active --add-code
-cleos get account hodl
-cleos set code hodl hodl.wasm
-cleos set abi hodl hodl.abi
-cleos push action eosio.token transfer '[ "bob", "hodl", "1.0000 SYS", "m" ]' -p bob@active
-cleos get table hodl bob balance
+eosio-cpp -o tictactoe.wasm src/tictactoe.cpp -I include --abigen
+cleos create account eosio tictactoe EOS6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV
+cleos set account permission tictactoe active --add-code
+cleos set code tictactoe tictactoe.wasm
+cleos set abi tictactoe tictactoe.abi
 
-#make sure hold have @eosio.code permissiom
-cleos push action hodl party '[ "bob" ]' -p bob@active
-cleos get table hodl bob balance
+cleos get table eosio.token tictactoe accounts
+
+# Bob as Host
+cleos push action eosio.token transfer '[ "bob", "tictactoe", "1.0000 SYS", "jane" ]' -p bob@active
+cleos get table tictactoe tictactoe games
+get table eosio.token tictactoe accounts
+
+# Jane as Opponent
+cleos push action eosio.token transfer '[ "jane", "tictactoe", "1.0000 SYS", "bob" ]' -p jane@active
+cleos get table tictactoe tictactoe games
+cleos push action tictactoe close '[ "jane", "bob" ]' -p bob@active
+cleos get table eosio.token tictactoe accounts
+cleos push action tictactoe move '[jane, bob, bob, 1,0]' -p bob
+cleos push action tictactoe move '[jane, bob, jane, 0,0]' -p jane
+cleos push action tictactoe move '[jane, bob, bob, 1,1]' -p bob
+cleos push action tictactoe move '[jane, bob, jane, 0,1]' -p jane
+
+# Bob Won the game
+cleos push action tictactoe move '[jane, bob, bob, 1,2]' -p bob
+
+# Error Game Over
+cleos push action tictactoe move '[jane, bob, jane, 0,2]' -p jane
 ```
-
-## Singletone Setting
-
-```
-cleos get table hodl hodl setting
-cleos push action hodl setup '[ 15 ]' -p hodl@active
-cleos get table hodl hodl setting
-```
-## Listing the messages
-
-Run this in a terminal:
-```
-cleos get table talk '' message
-
-```
-
-cleos get table eosio.token bob stake
-
-## Building and running the unit test
-
-The source code for the unit test is at the `tests` directory within the IDE. To build the tests, run this in the terminal:
-
-```
-./build-tests
-
-```
-
-This will produce the `tester` binary, which can be run from the terminal to start the actual unit test:
-
-```
-./tester
-
-```
-
 
 ## Resetting the chain
 
