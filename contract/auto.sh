@@ -34,36 +34,30 @@ cleos set account permission tictactoe active --add-code
 cleos set code tictactoe tictactoe.wasm
 cleos set abi tictactoe tictactoe.abi
 
-#exercise 1
-#cleos push action tictactoe create '[ bob ]' -p tictactoe@active
-#exercise 2
-#cleos push action tictactoe create '[ jane, bob ]' -p bob@active
-#cleos get table tictactoe tictactoe games
-#exercise 3
 #cleos get table eosio.token tictactoe accounts
 #cleos push action eosio.token transfer '[ "bob", "tictactoe", "1.0000 SYS", "jane" ]' -p bob@active
 #cleos get table tictactoe tictactoe games
 #cleos get table eosio.token tictactoe accounts
-#cleos push action tictactoe close '[ "jane", "bob"]' -p bob@active
+#cleos push action tictactoe close '{"payload": {"opponent":"jane", "host":"bob"}}' -p bob@active
 #cleos push action eosio.token transfer '[ "jane", "tictactoe", "1.0000 SYS", "bob" ]' -p jane@active
-#cleos push action tictactoe move '[jane, bob, bob, 1,0]' -p bob@active
-#cleos push action tictactoe move '[jane, bob, jane, 0,0]' -p jane@active
-#cleos push action tictactoe move '[jane, bob, bob, 1,1]' -p bob@active
-#cleos push action tictactoe move '[jane, bob, jane, 0,1]' -p jane@active
-#cleos push action tictactoe move '[jane, bob, bob, 1,2]' -p bob@active
-#cleos push action tictactoe move '[jane, bob, jane, 0,2]' -p jane@active
+#cleos push action tictactoe move '{"payload": {"opponent":"jane", "host":"bob", "by":"bob", "row":1, "col":0}}' -p bob@active
+#cleos push action tictactoe move '{"payload": {"opponent":"jane", "host":"bob", "by":"jane", "row":0, "col":0}}' -p jane@active
+#cleos push action tictactoe move '{"payload": {"opponent":"jane", "host":"bob", "by":"bob", "row":1, "col":1}}' -p bob@active
+#cleos push action tictactoe move '{"payload": {"opponent":"jane", "host":"bob", "by":"jane", "row":0, "col":1}}' -p jane@active
+#cleos push action tictactoe move '{"payload": {"opponent":"jane", "host":"bob", "by":"bob", "row":1, "col":2}}' -p bob@active
+#cleos push action tictactoe move '{"payload": {"opponent":"jane", "host":"bob", "by":"jane", "row":0, "col":2}}' -p jane@active
 
 #cleos push action eosio.token transfer '[ "bob", "tictactoe", "1.0000 SYS", "jane" ]' -p bob@active
 #cleos get table tictactoe tictactoe games
 #cleos get table eosio.token tictactoe accounts
-#cleos push action tictactoe close '[ "jane", "bob"]' -p bob@active
+#cleos push action tictactoe close '{"payload": {"opponent":"jane", "host":"bob"}}' -p bob@active
 #cleos push action eosio.token transfer '[ "jane", "tictactoe", "1.0000 SYS", "bob" ]' -p jane@active
-#cleos push action tictactoe move '[jane, bob, bob, 0,1]' -p bob@active
-#cleos push action tictactoe move '[jane, bob, jane, 0,0]' -p jane@active
-#cleos push action tictactoe move '[jane, bob, bob, 1,0]' -p bob@active
-#cleos push action tictactoe move '[jane, bob, jane, 1,1]' -p jane@active
-#cleos push action tictactoe move '[jane, bob, bob, 1,2]' -p bob@active
-#cleos push action tictactoe move '[jane, bob, jane, 0,2]' -p jane@active
-#cleos push action tictactoe move '[jane, bob, bob, 2,2]' -p bob@active
-#cleos push action tictactoe move '[jane, bob, jane, 2,1]' -p jane@active
-#cleos push action tictactoe move '[jane, bob, bob, 2,0]' -p bob@active
+#cleos push action tictactoe move '{"payload": {"opponent":"jane", "host":"bob", "by":"bob", "row":0, "col":1}}' -p bob@active
+#cleos push action tictactoe move '{"payload": {"opponent":"jane", "host":"bob", "by":"jane", "row":0, "col":0}}' -p jane@active
+#cleos push action tictactoe move '{"payload": {"opponent":"jane", "host":"bob", "by":"bob", "row":1, "col":0}}' -p bob@active
+#cleos push action tictactoe move '{"payload": {"opponent":"jane", "host":"bob", "by":"jane", "row":1, "col":1}}' -p jane@active
+#cleos push action tictactoe move '{"payload": {"opponent":"jane", "host":"bob", "by":"bob", "row":1, "col":2}}' -p bob@active
+#cleos push action tictactoe move '{"payload": {"opponent":"jane", "host":"bob", "by":"jane", "row":0, "col":2}}' -p jane@active
+#cleos push action tictactoe move '{"payload": {"opponent":"jane", "host":"bob", "by":"bob", "row":2, "col":2}}' -p bob@active
+#cleos push action tictactoe move '{"payload": {"opponent":"jane", "host":"bob", "by":"jane", "row":2, "col":1}}' -p jane@active
+#cleos push action tictactoe move '{"payload": {"opponent":"jane", "host":"bob", "by":"bob", "row":2, "col":0}}' -p bob@active
