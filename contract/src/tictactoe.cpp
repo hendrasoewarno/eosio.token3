@@ -220,6 +220,27 @@ CONTRACT tictactoe : public contract {
 	static uint128_t combine_ids(const uint64_t &x, const uint64_t &y) {
 		return (uint128_t{x} << 64) | y;
 	}
+	
+	/*
+	int random(const int range) {
+		//find the existing seed
+		auto seed_iterator = _seed.begin();
+		
+		//generate new seed value using the existing seed value
+		int prime = 65537;
+		auto new_seed_value = (seed_iterator->value +
+				       current_time_point().ellapsed.count()) % prime;
+		
+		//store the updated seed value in the table
+		_seed.modify( seed_iterator, _self, [&](auto &s) {
+			s.value = new_seed_value;
+		});
+		
+		//get the random result in desired range
+		int random_result = new_seed_value % range;
+		return random_result;
+	}
+	*/
 
 	bool is_draw(std::vector<std::uint8_t> board) {
 		uint8_t pos=0;
