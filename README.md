@@ -16,6 +16,33 @@ Once done, ensure that actions pushed from cleos or EOS Studio behave as expecte
 Select a random start player (or execute a random first move) in new Tic Tac Toe games, in a way that cannot be predicted due to pseudo-randomness.
 https://github.com/provable-things/docs/blob/master/source/includes/_eos.md
 
+## Create Account
+```
+https://kylin.eosx.io/tools/account/create
+
+tictactoe123
+
+{
+
+    "success":true,
+    "data":{
+        "account":{
+            "name":"tictactoe123",
+            "owner":{
+                "privateKey":"5JeVz3wkQYdcowNAJKYvRcavn6gutuJ42h4ARenAR8YF6d8B8rB",
+                "publicKey":"EOS6XFtBTTCmaWHcUMGhBqBSqBKkJWEdjCGb6ZDicUBUhmP6N1x8h"
+            },
+            "active":{
+                "privateKey":"5J5LEuaXy8GDih9UCxMJHdQGY3iyHVjYo2ArP1pQFy74hVKqAgz",
+                "publicKey":"EOS86T3RjUMHa9YoJq394jMuaF5hDAZVmeBdpoF4KzwLekbDYgHgz"
+            }
+        },
+        "tx":"d03bf4d2676fe92085a18181fd475657684b192652346fd33f228a578b879ca2"
+    }
+
+}
+```
+
 ## Setup
 
 1. Fork this repo to your personal GitHub account so that you can save your work into your personal Github account.
