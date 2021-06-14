@@ -1,4 +1,4 @@
-## Exercise Smart Contract 201 (Using Payload Structs)
+## Exercise Smart Contract 201 (Using Randomness)
 
 Create a Tic Tac Toe 
 - Welcome action can only be taken by contract account
@@ -12,6 +12,9 @@ Make the create action payable;  name host  must send in tokens to start a game,
 Refactor your TicTacToe contract to work with payload structs rather than long parameter lists.
 
 Once done, ensure that actions pushed from cleos or EOS Studio behave as expected.
+
+Select a random start player (or execute a random first move) in new Tic Tac Toe games, in a way that cannot be predicted due to pseudo-randomness.
+https://github.com/provable-things/docs/blob/master/source/includes/_eos.md
 
 ## Setup
 
