@@ -96,20 +96,24 @@ CONTRACT tictactoe : public contract {
 				game.opponent = opponent;
 				game.hoststake = quantity;
 				game.opponentstake = asset(0.0000,hodl_symbol);
-				game.turn = from;
+				//game turn depend on randomnese
+				//game.turn = from;
 			});
 		}
 		else if (itrh!=_gameskey.end()) {
 			//ram charge to same_payer
 			_game.modify(*itrh, same_payer, [&](auto& game) { 
-				game.hoststake += quantity;
+				game.hoststake += quantity; //add stake
 			});
 		}
 		else {
-			//ram charge to same_payer
-			_game.modify(*itrc, same_payer, [&](auto& game) { 
+			//ram charge to same_payer		
+			_game.modify(*itrc, same_payer, [&](auto& game) {
+				if (game.opponentstake.amount==0) {
+					game.provablequeryId = execprovablequeryWolframAlpha12();
+				}
 				game.opponentstake += quantity;
-			});		
+			});
 		}
 	}
 	
@@ -133,7 +137,7 @@ CONTRACT tictactoe : public contract {
 		}
 	}
 	
-	//callback from execprovablequeryEOSvsUSD
+	//callback from execprovablequeryWolframAlpha12 or execprovablequeryEOSvsUSD
 	ACTION callback(
 		const eosio::checksum256 queryId,
 		const std::vector<uint8_t> result,
@@ -147,7 +151,13 @@ CONTRACT tictactoe : public contract {
 		auto _gametkey = _game.get_index<name("gametkey")>();
 		auto itr = _gametkey.find(queryId);
 		if (itr!=_gametkey.end()) {
-			payback(itr->winner, itr->hoststake+itr->opponentstake, "You got the prize. EOS/USD=" + result_str);		
+			if (itr->winner!=name())
+				payback(itr->winner, itr->hoststake+itr->opponentstake, "You got the prize. EOS/USD=" + result_str);
+			else {
+				_game.modify(*itr, same_payer, [&](auto& game) {
+					game.turn = result_str=="1"?1:2;
+				});
+			}
 		}
 	}	
 
@@ -191,11 +201,19 @@ CONTRACT tictactoe : public contract {
 	}
 	
 	//return provable idQuery
+	checksum256 execprovablequeryWolframAlpha12()
+      	{
+		print("Sending query to Provable...");
+		return oraclize_query("WolframAlpha", "random number between 1 and 2");
+		(proofType_Android | proofStorage_IPFS));
+	}	
+	
+	//return provable idQuery
 	checksum256 execprovablequeryEOSvsUSD()
       	{
 		print("Sending query to Provable...");
-		return provable_query("URL", "json(https://min-api.cryptocompare.com/data/price?fsym=EOS&tsyms=USD).USD",
-		(proofType_Android | proofStorage_IPFS));
+		return oraclize_query("URL", "json(https://min-api.cryptocompare.com/data/price?fsym=EOS&tsyms=USD).USD",\
+			(proofType_Android | proofStorage_IPFS));
 	}
 	
 	void payback(name to, asset quantity, std::string memo) {
