@@ -41,6 +41,50 @@ tictactoe123
     }
 
 }
+
+tictactoebob
+
+{
+
+    "success":true,
+    "data":{
+        "account":{
+            "name":"tictactoebob",
+            "owner":{
+                "privateKey":"5KZkzrrt1gpqgvZBP8GF7xJSHMKJmLFhFyWZWFGFssb4jsdBwYj",
+                "publicKey":"EOS8931qxviyFoLuMCbfDPPqh5h2z98ZHBy4qSQE6HCW8KiAe8oxt"
+            },
+            "active":{
+                "privateKey":"5JL1gjsq8B2hWjADdxtdAxP4qTMDdc7UYSGp4ZjGq6EJtH979vD",
+                "publicKey":"EOS5QSGq9UXUBnCBVf4D6L2ZJi8D4qitBupMYtbntPPCgQYR2JitJ"
+            }
+        },
+        "tx":"7619d8043daf35fe3dd78de7f78ae05e24e2b64b52c342c661b8d151950aca12"
+    }
+
+}
+
+tictactoejan
+
+{
+
+    "success":true,
+    "data":{
+        "account":{
+            "name":"tictactoejan",
+            "owner":{
+                "privateKey":"5Ke21624HjLrmr1t8haTsoLkKZvHchZVQ6knpR2Yqpw7PoCPMDt",
+                "publicKey":"EOS5R6LWEVZuxtVBmsXHm3gYhpNEH7xPhr8gXvcxivWdxpyjzjXyP"
+            },
+            "active":{
+                "privateKey":"5JVpu92dSWw46hVJib8QybLk8ixz9yjmTt8ogcWvYdJjjZUwCUJ",
+                "publicKey":"EOS5s2MVFwGVS7pfUSBV7Zcw2ceyrpq746ay4sBPgQnLvtR3NH7uX"
+            }
+        },
+        "tx":"2f2035a8b996cf407195e6107bdd6b5f9d5aca25466c5f2567c829d1121b655b"
+    }
+
+}
 ```
 
 ## Setup
