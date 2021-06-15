@@ -96,23 +96,24 @@ CONTRACT tictactoe : public contract {
 				game.opponent = opponent;
 				game.hoststake = quantity;
 				game.opponentstake = asset(0.0000,hodl_symbol);
-				//game turn depend on randomnese
+				//**game first turn will select randomly
 				//game.turn = from;
 			});
 		}
 		else if (itrh!=_gameskey.end()) {
 			//ram charge to same_payer
 			_game.modify(*itrh, same_payer, [&](auto& game) { 
-				game.hoststake += quantity; //add stake
+				game.hoststake += quantity; //add more stake
 			});
 		}
 		else {
 			//ram charge to same_payer		
 			_game.modify(*itrc, same_payer, [&](auto& game) {
+				//as the opponent accept the game (by transfer SYS token)
 				if (game.opponentstake.amount==0) {
-					game.provablequeryId = execprovablequeryWolframAlpha12();
+					game.provablequeryId = execprovablequeryWolframAlpha12(); //**select turn randomly
 				}
-				game.opponentstake += quantity;
+				game.opponentstake += quantity;				
 			});
 		}
 	}
@@ -126,6 +127,8 @@ CONTRACT tictactoe : public contract {
 		auto itr = _gameskey.find(combine_ids(host.value, opponent.value));
 		check(itr!=_gameskey.end(), "game not found.");
 		check(itr->winner==name(), "game over!");
+		//can move when the stake balanced
+		check(itr->hoststake==itr->opponentstake, "Stake not balance");
 		_game.modify(*itr, same_payer, [&]( auto& game ) {
 			check(game.is_valid_movement(by, row, col), "invalid move.");
 			if (game.winner!=name())
@@ -153,7 +156,7 @@ CONTRACT tictactoe : public contract {
 		if (itr!=_gametkey.end()) {
 			if (itr->winner!=name())
 				payback(itr->winner, itr->hoststake+itr->opponentstake, "You got the prize. EOS/USD=" + result_str);
-			else {
+			else if (itr->turn==name()) {
 				_game.modify(*itr, same_payer, [&](auto& game) {
 					game.turn = result_str=="1"?1:2;
 				});
