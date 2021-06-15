@@ -14,7 +14,7 @@ Refactor your TicTacToe contract to work with payload structs rather than long p
 Once done, ensure that actions pushed from cleos or EOS Studio behave as expected.
 
 Select a random start player (or execute a random first move) in new Tic Tac Toe games, in a way that cannot be predicted due to pseudo-randomness.
-https://github.com/provable-things/docs/blob/master/source/includes/_eos.md
+https://docs.provable.xyz/#eos, https://github.com/provable-things/docs/blob/master/source/includes/_eos.md, https://github.com/provable-things/eos-examples
 
 ## Create Account
 ```
