@@ -3,6 +3,8 @@
 #include <eosio/asset.hpp>
 #include <eosio/system.hpp>
 #include <vector>
+//using randomnese
+#include "provable/eos_api.hpp"
 
 using namespace eosio;
 
@@ -108,39 +110,7 @@ CONTRACT tictactoe : public contract {
 		}
 	}
 	
-	//managing long list param
-	struct param_move {
-		name opponent;
-		name host;
-		name by;
-		uint16_t row;
-		uint16_t col;
-	};
-	
-	//cleos push action tictactoe move '{"payload": {"opponent":"jane", "host":"bob", "by":"bob", "row":0, "col":1}}' -p bob@active
-	
-	ACTION move(param_move payload) {
-		check(has_auth(payload.by), "please auth before!");
-		check(payload.by==payload.opponent || payload.by==payload.host, "only opponent or host can move!");
-		check(payload.row<3 && payload.col < 3, "invalid row or col!");
-		game_index _game(get_self(), get_self().value);
-		auto _gameskey = _game.get_index<name("gameskey")>();
-		auto itr = _gameskey.find(combine_ids(payload.host.value, payload.opponent.value));
-		check(itr!=_gameskey.end(), "game not found.");
-		check(itr->winner==name(), "game over!");
-		_game.modify(*itr, same_payer, [&]( auto& game ) {
-			check(game.is_valid_movement(payload.by, payload.row, payload.col), "invalid move.");
-		});
-		if (itr->winner!=name()) {
-			payback(itr->winner, itr->hoststake+itr->opponentstake, "You got the prize.");
-		}
-		else if (is_draw(itr->board)) {
-			payback(itr->host, itr->hoststake, "Stake refund.");
-			payback(itr->opponent, itr->opponentstake, "Stake refund.");
-		}
-	}
- /*
-  ACTION move(name opponent, name host, name by, uint16_t row, uint16_t col) {
+	ACTION move(name opponent, name host, name by, uint16_t row, uint16_t col) {
 		check(has_auth(by), "please auth before!");
 		check(by==opponent || by==host, "only opponent or host can move!");
 		check(row<3 && col < 3, "invalid row or col!");
@@ -160,36 +130,19 @@ CONTRACT tictactoe : public contract {
 			payback(itr->opponent, itr->opponentstake, "Stake refund.");
 		}
 	}
-*/
-	//managing long list param
-	struct param_close {
-		name opponent;
-		name host;
-	};
 	
-	//cleos push action tictactoe close '{"payload": {"opponent":"jane", "host":"bob"}}' -p bob@active
-	
-	ACTION close(param_close payload) {
-		//find by host (primary key)
-		check(has_auth(payload.host), "Please auth yourself.");
-		game_index _game(get_self(), get_self().value);
-		//find using secondary key
-		auto _gameskey = _game.get_index<name("gameskey")>();
-		auto itr = _gameskey.find(combine_ids(payload.host.value, payload.opponent.value));
-		if (itr!=_gameskey.end()) {
-			if (itr->winner!=name("") || is_draw(itr->board))
-				_gameskey.erase(itr);
-			else {
-				check(itr->opponentstake==asset(0,hodl_symbol), "Close failed, opponent has staked."); 
-				payback(itr->host, itr->hoststake, "Your stake freed.");
-				_gameskey.erase(itr);
-			}
-		}
-		else {
-			check(false, "Game not found.");
-		}
-	}
-/*
+	ACTION callback(
+		const eosio::checksum256 queryId,
+		const std::vector<uint8_t> result,
+		const std::vector<uint8_t> proof
+	)
+	{
+		require_auth(provable_cbAddress());
+		const std::string result_str = vector_to_string(result);
+		print(" Result: ", result_str);
+		print(" Proof length: ", proof.size());
+	}	
+
  	ACTION close(name opponent, name host) {
 		//find by host (primary key)
 		check(has_auth(host), "Please auth yourself.");
@@ -210,7 +163,6 @@ CONTRACT tictactoe : public contract {
 			check(false, "Game not found.");
 		}
 	}
-*/
 
 	private: 
 	
@@ -221,27 +173,6 @@ CONTRACT tictactoe : public contract {
 		return (uint128_t{x} << 64) | y;
 	}
 	
-	/*
-	int random(const int range) {
-		//find the existing seed
-		auto seed_iterator = _seed.begin();
-		
-		//generate new seed value using the existing seed value
-		int prime = 65537;
-		auto new_seed_value = (seed_iterator->value +
-				       current_time_point().ellapsed.count()) % prime;
-		
-		//store the updated seed value in the table
-		_seed.modify( seed_iterator, _self, [&](auto &s) {
-			s.value = new_seed_value;
-		});
-		
-		//get the random result in desired range
-		int random_result = new_seed_value % range;
-		return random_result;
-	}
-	*/
-
 	bool is_draw(std::vector<std::uint8_t> board) {
 		uint8_t pos=0;
 		while (pos < 9) {
@@ -249,7 +180,14 @@ CONTRACT tictactoe : public contract {
 			pos++;			
 		}
 		return pos==9;
-	}	
+	}
+	
+	void execquery()
+      	{
+		print("Sending query to Provable...");
+		provable_query("URL", "json(https://min-api.cryptocompare.com/data/price?fsym=EOS&tsyms=USD).USD",
+		(proofType_Android | proofStorage_IPFS));
+	}
 	
 	void payback(name to, asset quantity, std::string memo) {
 		action{
