@@ -4,7 +4,7 @@
 #include <eosio/system.hpp>
 #include <vector>
 //using randomnese
-#include "provable/eos_api.hpp"
+#include <provable/eos_api.hpp>
 
 using namespace eosio;
 
@@ -15,7 +15,7 @@ CONTRACT tictactoe : public contract {
 	using contract::contract;
 
 	tictactoe(name receiver, name code, datastream<const char *> ds) : contract(receiver, code, ds),
-		hodl_symbol("SYS", 4) {} //singleton initialize
+		hodl_symbol("EOS", 4) {} //singleton initialize
 
 	TABLE game_record {
 		name host;
@@ -26,7 +26,7 @@ CONTRACT tictactoe : public contract {
 		std::vector<std::uint8_t> board{0,0,0,0,0,0,0,0,0};
 		name turn;
 		name winner;
-		checksum256 provablequeryId,
+		checksum256 provablequeryId;
 	
 		bool is_empty_cell(uint16_t row, uint16_t col) {return (board[row*3+col]==0);}
 		bool is_valid_movement(name by, uint16_t row, uint16_t col) {
@@ -57,12 +57,12 @@ CONTRACT tictactoe : public contract {
 
 		uint64_t primary_key() const {return host.value;}
 		uint128_t secondary_key() const {return combine_ids(host.value,opponent.value);}
-		uint128_t third_key() const {return provablequeryId;}
+		checksum256 third_key() const {return provablequeryId;}
 	};
 	
 	typedef eosio::multi_index<name("games"), game_record,
 		eosio::indexed_by<name("gameskey"), eosio::const_mem_fun<game_record, uint128_t, &game_record::secondary_key>>,
-		eosio::indexed_by<name("gametkey"), eosio::const_mem_fun<game_record, checksum256, &game_record::third_key>>,
+		eosio::indexed_by<name("gametkey"), eosio::const_mem_fun<game_record, checksum256, &game_record::third_key>>
 	> game_index;
 
 	ACTION welcome(name host, name opponent) {
@@ -133,11 +133,11 @@ CONTRACT tictactoe : public contract {
 			check(game.is_valid_movement(by, row, col), "invalid move.");
 			if (game.winner!=name())
 				game.provablequeryId = execprovablequeryEOSvsUSD();
+			else if (is_draw(itr->board)) {
+				payback(itr->host, itr->hoststake, "Stake refund.");
+				payback(itr->opponent, itr->opponentstake, "Stake refund.");
+			}
 		});
-		else if (is_draw(itr->board)) {
-			payback(itr->host, itr->hoststake, "Stake refund.");
-			payback(itr->opponent, itr->opponentstake, "Stake refund.");
-		}
 	}
 	
 	//callback from execprovablequeryWolframAlpha12 or execprovablequeryEOSvsUSD
@@ -158,7 +158,7 @@ CONTRACT tictactoe : public contract {
 				payback(itr->winner, itr->hoststake+itr->opponentstake, "You got the prize. EOS/USD=" + result_str);
 			else if (itr->turn==name()) {
 				_game.modify(*itr, same_payer, [&](auto& game) {
-					game.turn = result_str=="1"?1:2;
+					game.turn= (result_str=="1"?game.host:game.opponent);
 				});
 			}
 		}
@@ -207,15 +207,14 @@ CONTRACT tictactoe : public contract {
 	checksum256 execprovablequeryWolframAlpha12()
       	{
 		print("Sending query to Provable...");
-		return oraclize_query("WolframAlpha", "random number between 1 and 2");
-		(proofType_Android | proofStorage_IPFS));
+		return provable_query("WolframAlpha", "random number between 1 and 2");
 	}	
 	
 	//return provable idQuery
 	checksum256 execprovablequeryEOSvsUSD()
       	{
 		print("Sending query to Provable...");
-		return oraclize_query("URL", "json(https://min-api.cryptocompare.com/data/price?fsym=EOS&tsyms=USD).USD",\
+		return provable_query("URL", "json(https://min-api.cryptocompare.com/data/price?fsym=EOS&tsyms=USD).USD",\
 			(proofType_Android | proofStorage_IPFS));
 	}
 	
