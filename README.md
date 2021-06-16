@@ -16,7 +16,7 @@ Once done, ensure that actions pushed from cleos or EOS Studio behave as expecte
 Submit a screenshot of your action push, including the printed current USD value in the response.
 
 Select a random start player (or execute a random first move) in new Tic Tac Toe games, in a way that cannot be predicted due to pseudo-randomness.
-https://docs.provable.xyz/#eos, https://github.com/provable-things/docs/blob/master/source/includes/_eos.md, https://github.com/provable-things/eos-examples
+https://docs.provable.xyz/#eos, https://github.com/provable-things/docs/blob/master/source/includes/_eos.md, https://github.com/provable-things/eos-examples https://eosio.github.io/eosjs2/static/2.-Transaction-Examples.html
 
 ## Create Account
 ```
