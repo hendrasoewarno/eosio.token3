@@ -8,41 +8,6 @@
 using namespace eosio;
 
 class [[eosio::contract("hodl")]] hodl : public eosio::contract {
-  private:
-    const symbol hodl_symbol;
-
-    //prepare singleton
-    struct [[eosio::table]] setting {
-      uint32_t the_party;
-      void next_party(uint32_t current_time, uint32_t minutes) {
-        print(current_time);
-        print(minutes);
-        the_party=((uint32_t)(current_time/(minutes*60))*(minutes*60))+(minutes*60);
-        print(the_party);
-      }
-    } default_setting;
-    using singleton_type = eosio::singleton<"setting"_n, setting>;
-    singleton_type singleton_instance;
-
-    struct [[eosio::table]] balance
-    {
-      eosio::asset funds;
-      uint64_t primary_key() const { return funds.symbol.raw(); }
-    };
-
-    using balance_table = eosio::multi_index<"balance"_n, balance>;
-
-    uint32_t now() {
-      return current_time_point().sec_since_epoch();
-    }
-
-    uint32_t get_next_party() {
-      if (singleton_instance.exists())
-        return singleton_instance.get().the_party;
-      else
-        return 0;
-    }
-
   public:
     using contract::contract;
 
@@ -65,10 +30,12 @@ class [[eosio::contract("hodl")]] hodl : public eosio::contract {
       auto hodl_it = balance.find(hodl_symbol.raw());
 
       if (hodl_it != balance.end())
+		//contract pay for the RAM
         balance.modify(hodl_it, get_self(), [&](auto &row) {
           row.funds += quantity;
         });
       else
+		//contract pay for the RAM
         balance.emplace(get_self(), [&](auto &row) {
           row.funds = quantity;
         });
@@ -97,17 +64,53 @@ class [[eosio::contract("hodl")]] hodl : public eosio::contract {
       // //Make sure the holder is in the table
       check(hodl_it != balance.end(), "You're not allowed to party");
 
+	  //using inline method
       /*
+	  //take 1% from withdrawals to help cover the cost
       action{
         permission_level{get_self(), "active"_n},
         "eosio.token"_n,
-        "transfer"_n,
-        std::make_tuple(get_self(), hodler, hodl_it->funds, std::string("Party! Your hodl is free."))
+        "transfer"_n,		
+        std::make_tuple(get_self(), hodler, asset(hodl_it->funds.amount*0.99, hodl_symbol), std::string("Party! Your hodl is free."))
       }.send();
       */
       token::transfer_action payback{"eosio.token"_n, {get_self(), "active"_n}};
-      payback.send(get_self(), hodler, hodl_it->funds, std::string("Party! Your hodl is free."));
+	  //take 1% from withdrawals to help cover the cost
+      payback.send(get_self(), hodler, asset(hodl_it->funds.amount*0.99, hodl_symbol), std::string("Party! Your hodl is free."));
 
       balance.erase(hodl_it);
     }
+	
+  private:
+    const symbol hodl_symbol;
+
+    //prepare singleton
+    struct [[eosio::table]] setting {
+      uint32_t the_party;
+      void next_party(uint32_t current_time, uint32_t minutes) {
+        the_party=((uint32_t)(current_time/(minutes*60))*(minutes*60))+(minutes*60);
+      }
+    } default_setting;
+	
+    using singleton_type = eosio::singleton<"setting"_n, setting>;
+    singleton_type singleton_instance;
+
+    struct [[eosio::table]] balance
+    {
+      eosio::asset funds;
+      uint64_t primary_key() const { return funds.symbol.raw(); }
+    };
+
+    using balance_table = eosio::multi_index<"balance"_n, balance>;
+
+    uint32_t now() {
+      return current_time_point().sec_since_epoch();
+    }
+
+    uint32_t get_next_party() {
+      if (singleton_instance.exists())
+        return singleton_instance.get().the_party;
+      else
+        return 0;
+    }	
 };
