@@ -45,14 +45,14 @@ function pushAction(rpc, contract, action, actor, data) {
   })();
 }
 
-//pushAction(rpc, 'eosio.token', 'transfer', 'tictactoebob', {from:'tictactoebob', to:'tictactoe123', quantity:'1.0000 EOS', memo:'tictactoejan'});
-//pushAction(rpc, 'eosio.token', 'transfer', 'tictactoejan', {from:'tictactoejan', to:'tictactoe123', quantity:'1.0000 EOS', memo:'tictactoebob'});
-//pushAction(rpc, 'tictactoe123', 'move', 'tictactoejan', {opponent:'tictactoebob', host:'tictactoejan', by:'tictactoejan', row: 1, col:0});
-//pushAction(rpc, 'tictactoe123', 'move', 'tictactoebob', {opponent:'tictactoebob', host:'tictactoejan', by:'tictactoebob', row: 0, col:0});
+pushAction(rpc, 'eosio.token', 'transfer', 'tictactoebob', {from:'tictactoebob', to:'tictactoe123', quantity:'1.0000 EOS', memo:'tictactoejan'});
+pushAction(rpc, 'eosio.token', 'transfer', 'tictactoejan', {from:'tictactoejan', to:'tictactoe123', quantity:'1.0000 EOS', memo:'tictactoebob'});
+pushAction(rpc, 'tictactoe123', 'move', 'tictactoejan', {opponent:'tictactoebob', host:'tictactoejan', by:'tictactoejan', row: 1, col:0});
+pushAction(rpc, 'tictactoe123', 'move', 'tictactoebob', {opponent:'tictactoebob', host:'tictactoejan', by:'tictactoebob', row: 0, col:0});
 pushAction(rpc, 'tictactoe123', 'move', 'tictactoejan', {opponent:'tictactoebob', host:'tictactoejan', by:'tictactoejan', row: 1, col:1});
-//pushAction(rpc, 'tictactoe123', 'move', 'tictactoebob', {opponent:'tictactoebob', host:'tictactoejan', by:'tictactoebob', row: 0, col:1});
-//pushAction(rpc, 'tictactoe123', 'move', 'tictactoejan', {opponent:'tictactoebob', host:'tictactoejan', by:'tictactoejan', row: 1, col:2});
-//pushAction(rpc, 'tictactoe123', 'move', 'tictactoebob', {opponent:'tictactoebob', host:'tictactoejan', by:'tictactoebob', row: 0, col:2});
+pushAction(rpc, 'tictactoe123', 'move', 'tictactoebob', {opponent:'tictactoebob', host:'tictactoejan', by:'tictactoebob', row: 0, col:1});
+pushAction(rpc, 'tictactoe123', 'move', 'tictactoejan', {opponent:'tictactoebob', host:'tictactoejan', by:'tictactoejan', row: 1, col:2});
+pushAction(rpc, 'tictactoe123', 'move', 'tictactoebob', {opponent:'tictactoebob', host:'tictactoejan', by:'tictactoebob', row: 0, col:2});
 
 /*
 cleos push action tictactoe move '[jane, bob, bob, 1,0]' -p bob
