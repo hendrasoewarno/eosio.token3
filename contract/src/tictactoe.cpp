@@ -9,12 +9,12 @@
 using namespace eosio;
 
 // The contract
-CONTRACT tictactoe : public contract {
+CONTRACT tictactoe123 : public contract {
 	public:
 
 	using contract::contract;
 
-	tictactoe(name receiver, name code, datastream<const char *> ds) : contract(receiver, code, ds),
+	tictactoe123(name receiver, name code, datastream<const char *> ds) : contract(receiver, code, ds),
 		hodl_symbol("EOS", 4) {} //singleton initialize
 
 	TABLE game_record {
@@ -34,12 +34,12 @@ CONTRACT tictactoe : public contract {
 				uint8_t set=1;
 				if (by==host) {
 					board[row*3+col]=set;
-					turn=opponent;
+					turn=opponent; //next turn
 				}
 				else {
 					set=2;
 					board[row*3+col]=set;
-					turn=host;
+					turn=host; //next turn
 				}
 			
 				uint8_t test=((board[row*3+0]&board[row*3+1]&board[row*3+2]) 
@@ -90,14 +90,14 @@ CONTRACT tictactoe : public contract {
 		auto itrh = _gameskey.find(combine_ids(from.value, opponent.value));
 		auto itrc = _gameskey.find(combine_ids(opponent.value, from.value));
 		if (itrh==_gameskey.end() && itrc==_gameskey.end()) {
-			//ram charge to action caller
+			//ram charge to contract
 			_game.emplace(get_self(), [&](auto& game) { 
 				game.host = from;
 				game.opponent = opponent;
 				game.hoststake = quantity;
 				game.opponentstake = asset(0.0000,hodl_symbol);
 				//**game first turn will select randomly
-				//game.turn = from;
+				game.turn = from;
 			});
 		}
 		else if (itrh!=_gameskey.end()) {
@@ -109,9 +109,9 @@ CONTRACT tictactoe : public contract {
 		else {
 			//ram charge to same_payer		
 			_game.modify(*itrc, same_payer, [&](auto& game) {
-				//as the opponent accept the game (by transfer SYS token)
+				//on opponent accept the game (determine first turn randomly)
 				if (game.opponentstake.amount==0) {
-					game.provablequeryId = execprovablequeryWolframAlpha12(); //**select turn randomly
+					game.provablequeryId = execprovablequeryWolframAlpha12(); //*save queryId
 				}
 				game.opponentstake += quantity;				
 			});
@@ -131,11 +131,17 @@ CONTRACT tictactoe : public contract {
 		check(itr->hoststake==itr->opponentstake, "Stake not balance");
 		_game.modify(*itr, same_payer, [&]( auto& game ) {
 			check(game.is_valid_movement(by, row, col), "invalid move.");
+			//on winning game
 			if (game.winner!=name())
-				game.provablequeryId = execprovablequeryEOSvsUSD();
+				game.provablequeryId = execprovablequeryEOSvsUSD(); //will info EOSvsUSD and pay to winner
+			//on tie game
 			else if (is_draw(itr->board)) {
 				payback(itr->host, itr->hoststake, "Stake refund.");
 				payback(itr->opponent, itr->opponentstake, "Stake refund.");
+			}
+			//next turn
+			else {
+				game.provablequeryId = execprovablequeryTimeKeeper(); //time keeper restart
 			}
 		});
 	}
@@ -152,13 +158,24 @@ CONTRACT tictactoe : public contract {
 		print(" Proof length: ", proof.size());
 		game_index _game(get_self(), get_self().value);
 		auto _gametkey = _game.get_index<name("gametkey")>();
-		auto itr = _gametkey.find(queryId);
+		auto itr = _gametkey.find(queryId); //*find game base on queryId
 		if (itr!=_gametkey.end()) {
+			//feedback on winning
 			if (itr->winner!=name())
+				//pay to winner
 				payback(itr->winner, itr->hoststake+itr->opponentstake, "You got the prize. EOS/USD=" + result_str);
+			//feedback on determine game first turn randomly
 			else if (itr->turn==name()) {
 				_game.modify(*itr, same_payer, [&](auto& game) {
 					game.turn= (result_str=="1"?game.host:game.opponent);
+					game.provablequeryId = execprovablequeryTimeKeeper(); //time keeper start
+				});
+			}
+			//turn time out, then determine winner and pay to winner
+			else {				
+				_game.modify(*itr, same_payer, [&](auto& game) {
+					game.winner=(game.turn==game.host?game.opponent:game.host); //determine winner base on next turn
+					game.provablequeryId = execprovablequeryEOSvsUSD(); //will info EOSvsUSD and pay to winner
 				});
 			}
 		}
@@ -203,14 +220,21 @@ CONTRACT tictactoe : public contract {
 		return pos==9;
 	}
 	
-	//return provable idQuery
+	//return provable idQuery for determine game first turn randomly
 	checksum256 execprovablequeryWolframAlpha12()
       	{
 		print("Sending query to Provable...");
-		return provable_query("WolframAlpha", "random number between 1 and 2");
-	}	
+		return provable_query("WolframAlpha", "random number between 1 and 2"); //1=host, 2=opponent
+	}
+
+	//return provable idQuery for each turn time keeper (10 seconds)
+	checksum256 execprovablequeryTimeKeeper()
+      	{
+		print("Sending query to Provable...");
+		return provable_query(10, "WolframAlpha", "random number between 1 and 2"); //10 seconds
+	}		
 	
-	//return provable idQuery
+	//return provable idQuery for display current EOS vs USD price when game winning
 	checksum256 execprovablequeryEOSvsUSD()
       	{
 		print("Sending query to Provable...");
